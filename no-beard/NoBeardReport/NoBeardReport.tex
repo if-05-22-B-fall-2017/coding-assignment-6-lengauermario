@@ -1,0 +1,470 @@
+\documentclass[11pt]{report}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+\usepackage{listings}
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[usenames, dvipsnames, table]{xcolor}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\newcommand{\leongage}{NoBeard}
+
+\newcommand{\alternative}{$\mid \;$}
+\newcommand{\emptystring}{$\varepsilon$}
+
+% ---------------------------------------------- Definition of grammar environment -----------------------------------------------------
+\newenvironment{grammar}[2] % two arguments: width of left side and width of right side of grammar
+	{
+		\newcommand{\completerule}[2]{##1 & = & ##2.\\}
+		\newcommand{\startrule}[2]{##1 & = & ##2\\}
+		\newcommand{\alternativerule}[1]{ & $|$ & ##1\\}
+		\newcommand{\alternativeend}[1]{ & $|$ & ##1.\\}
+		\newcommand{\finishrule}[1]{ & & ##1.\\}
+		\begin{tabular}{p{#1} c p{#2}}
+	}
+	{	\end{tabular}
+	}
+
+% ----------------------------------------------- Definition of attributed grammar environment
+\newenvironment{atg}[1][6cm]
+	{\begin{tabular}[b]{lclp{#1}}}
+	{\end{tabular}}
+\newcommand{\atgsy}[2]{$\textrm{#1}_\textrm{#2}$}
+\newcommand{\outattr}{$\uparrow$}
+\newcommand{\inattr}{$\downarrow$}
+
+\newcommand{\semantics}[1]{\textcolor{Gray}{#1}}
+
+\newenvironment {sem}
+	{\underline{sem}}
+	{\underline{endsem}}
+	
+\newcommand{\where}{\underline{where} }
+
+% --------------------------------------------------- Definition of colors used in source code listings ----------------------------------------------
+\definecolor{srcred}{rgb}{0.6,0,0}
+\definecolor{srcpurple}{rgb}{0.5,0,0.35}
+\definecolor{srcgreen}{rgb}{0.25,0.5,0.35}
+\definecolor{srcblue}{rgb}{0.25,0.35,0.75}
+
+% -------------------------------------------------- Definition of lstlisting for NoBeard ------------------------------------------------------------------
+\lstdefinelanguage{NoBeard}{
+	basicstyle=\ttfamily,
+	frame=single,
+	sensitive=true,
+	morekeywords = {unit, function, do, done, int, char, put, putln},
+	morecomment=[l][\color{srcgreen}]{\#},
+	morestring=[b][\color{srcred}]{"},
+	keywordstyle=\color{srcpurple},
+	showspaces=false,
+	showstringspaces=false
+}
+
+% ----------------------------------------------- Definition of lstlisting for NoBeardAsm programs --------------------------------------------------
+\lstdefinelanguage{NoBeardAsm}{
+	basicstyle=\ttfamily,
+	frame=single,
+	sensitive=true,
+	tabsize=3,
+	morekeywords = {nop, lit, la, lv, lc, sto, stc, assn, neg, add, sub, mul, div, mod, not, rel, fjmp, tjmp, jmp, in, out, inc, halt},
+	morecomment=[l][\color{srcgreen}]{\#},
+	morestring=[b][\color{srcred}]{"},
+	keywordstyle=\color{srcpurple},
+	showspaces=false,
+	showstringspaces=false,
+	escapechar=|,
+	captionpos=b,
+	numberstyle=\small
+}
+
+% --------------------------------- Definition of lstlisting for AsmDef the language to define assembler commands -----------------------
+\lstdefinelanguage{AsmDef}{
+	basicstyle=\ttfamily,
+	frame=single,
+	sensitive=true,
+	tabsize=3,
+	morekeywords = {push, pop, printf, dat, prog, top, fp, pc, ms},
+	morecomment=[l][\color{srcgreen}]{//},
+	morestring=[b][\color{srcred}]{"},
+	keywordstyle=\color{srcpurple},
+	showspaces=false,
+	showstringspaces=false
+}
+
+% ------------------------------------------------------ Definition of assembler instruction commands --------------------------------------------
+\newcommand{\onebyteinstruction}[1]{
+\begin{tabular}{|p{3.9em}|}
+\hline
+\tiny{Byte 0} \\ \hline
+#1  \\ \hline
+\end{tabular}
+}
+
+\newcommand{\twobyteinstruction}[2]{
+\begin{tabular}{|p{3.9em}|p{9em}|p{9em}|}
+\hline
+\tiny{Byte 0} & \tiny{Byte 1} \\ \hline
+#1 & #2 \\ \hline
+\end{tabular}
+}
+
+\newcommand{\threebyteinstruction}[2]{
+\begin{tabular}{|p{3.9em}|p{9em}|p{9em}|}
+\hline
+\tiny{Byte 0} & \tiny{Byte 1} & \tiny{Byte 2} \\ \hline
+#1 & \multicolumn{2}{c |}{#2} \\ \hline
+\end{tabular}
+}
+
+\newcommand{\fourbyteinstructiona}[3]{
+\begin{tabular}{|p{3.9em}|p{9em}|p{9em}|p{9em}|}
+\hline
+\tiny{Byte 0} & \tiny{Byte 1} & \tiny{Byte 2} & \tiny{Byte 3} \\ \hline
+#1 & #2 & \multicolumn{2}{c |}{#3} \\ \hline
+\end{tabular}
+}
+
+
+% ---------------------------------------------------------------------- Start of document -----------------------------------------------------------------
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\includegraphics[scale=0.3]{no_beard_1.jpg} \\[2em]
+{\Huge A Formal Description of \leongage} \\[1em]
+{\large v 1.2} \\[2em]
+{\Large P. Bauer} \\[1em]
+HTBLA Leonding \\
+Limesstr. 14 - 18 \\
+4060 Leonding \\
+Austria
+\end{center}
+\end{titlepage}
+
+\section*{Revisions}
+\begin{tabular}{|l|l|p{.5\textwidth}|}
+\hline
+\cellcolor{Gray}\textcolor{White}{Date} & \cellcolor{Gray}\textcolor{White}{Author} & \cellcolor{Gray}\textcolor{White}{Change} \\ \hline
+September 21, 2016 & P. Bauer & Added instructins in.  \\ \hline
+September 2, 2016 & P. Bauer & Added instructins lci, lvi.  \\ \hline
+August 15, 2016 & P. Bauer & Added introduction to assembler.  \\ \hline
+August 9, 2016 & P. Bauer & Explained call stack and control unit of the machine.  \\ \hline
+June 25, 2016 & P. Bauer & Added more detailed description of the machine and added all assembler instructions used so far.  \\ \hline
+June 12, 2016 & P. Bauer & Changed environment for grammar and formatting of source code. \\ \hline
+June 5, 2014 & P. Bauer & {\bf Released v. 1.1}  \\ \hline
+June 5, 2012 & P. Bauer & {\bf Released v. 1.0}  \\ \hline
+\end{tabular}
+
+\pagebreak
+
+\tableofcontents
+\chapter{Introduction}
+\section{The \leongage{} Project}
+This project aims to provide students who want to dig into the fields of assembler programming, system programming and compiler construction a playground where they can experiment in a pretty small and clean environment. The components developed here do not have the quirks and compromises real machines, assemblers, and compilers have to make in order to keep up with their real life requirements. In particular the following parts are provided:
+
+\begin{itemize}
+	\item The {\em \leongage{} Machine}. A virtual machine with an instruction set of less than 30 instructions which is pretty easy to grasp compared to the instruction set sizes of real life machines. The machine is purely stack based such that the structure of each instruction is again easy to understand and to follow.
+	\item The {\em \leongage{} Assembler}. To write programs for the \leongage{} Machine an assembler is provided. In the published version of the project no support of labels, symbolic variables, etc. is given. Here the focus is to direct the students to the very basics of how machine programs for the \leongage{} Machine look like and how they work. Extensions as the ones mentioned above can be done by the interested student as an exercise.
+	\item The {\em \leongage{} Compiler}. To facilitate programming for the \leongage{} Machine and to give insights into the basic techniques of compiler construction a dedicated language is defined and the corresponding compiler is implemented. We did not go for the automated construction of compilers with compiler generators since we wanted to emphasize the direct relationship of formal grammars to parsers using the recursive descending method. For students interested in compiler construction using compiler generators the great book of Pat Terry~\cite{terry_compiling_2004} is recommended.
+\end{itemize}
+
+\section{Trivia and Acknowledgements}
+The \leongage{} tools are used to support the courses {\em Technical Informatics} and {\em Programming and Software Engineering} (in particular the part {\em Theoretical Informatics}) held for third grade students of the Department of Informatics at the HTBLA Leonding. Therefore the students of these grades are forced to go through this material in more detail. All remarks from students of the former years helped to improve the project and to bring it into the shape as it is today. A big Thank You at this point is the least one can do in return for that. Since the whole project is still ongoing: In case of typos, misleading wording or other problems, please feel free to contact the author. Any help in this direction is highly appreciated.
+
+According to a web article (see \cite{khason_computer_2008}) the popularity of programming languages is strongly related to the fact whether its inventor(s) is a / are  bearded m[ae]n or not. Well, the main aim of the programming language \leongage{} is not to be popular,
+moreover it should give the reader a clear insight how the main principles of assembler programming, system programming, and compiler construction are. This is the background of the name of the whole project. Thanks to my former colleagues Peter Penz, Hugo Koblmüller, and Harald Wick for their constant friendship and creativity which not only helped me to find a proper name for this project.
+
+When developing this project we had an extremely helpful guideline in the {\em MiniModula2} project developed by Hanspeter Mössenböck at the Johannes Kepler University in Linz~\cite{mossenbock_formale_1991}. Actually all basic concepts used here are stolen from this project.
+
+\section{Structure}
+
+
+\include{NoBeardMachine}
+
+\chapter{\leongage{} Assembler}
+\section{Assembler File Structure}
+\leongage{} Assembler files are text files which contain two blocks, namely the string constants and the assembler program. The files have the extensions \lstinline$.na$ for \leongage{} Assembler.
+
+The string constants are stored within one block of double quotes and can be organized by the programmer as (s)he wants. There is no possibility to address one single constant, i.e., when using a string constant in the assembler program one has to provide the start address of the string constant and the length needed in the program.
+
+Assembler programs are texts holding a sequence of assembler instructions as described in section~\ref{sec:instructions}. The opcode has to be written in lower case letters.The programmer has to follow the instruction format, i.e., (s)he has to take care that the given operands fit into the required data format of the instruction.
+
+\section{Examples}
+\subsection{First Example}
+The first example shows a non-empty assembler program which definitely does nothing. It is worth to be mentioned that \lstinline$#$ marks a comment which then lasts until the end of the line. 
+\newcommand{\assemblerfilepath}{../../NoBeardProject/SamplePrograms/NbAssemblerPrograms/}
+\lstset{language=NoBeardAsm}
+\lstinputlisting[caption={Small and useless assembler program}]{\assemblerfilepath TinyProgramA.na}
+
+Assembler instructions need {\em not} to start at every new line, they could also be written as a sequence in one line or one instruction could be broken up into several lines. Line breaks are only allowed between the opcode and operands or between the operands. Therefore the above program can be rewritten in the following way.
+\lstinputlisting[caption={Shorter way to write a small and useless program}]{\assemblerfilepath TinyProgramB.na}
+
+\subsection{String Handling and Output}
+A \leongage{} assembler program writing ``Hello World'' into the console could look like as follows. The strings \lstinline$Hello$ and \lstinline$World$ must be specified at the very beginning of the program. We simply write the strings needed in a sequence, without any separator or similar. The instruction \lstinline$out$ is used to produce output. When calling \lstinline$out$ with operand \lstinline$2$ (see line~\ref{line:helloworldout}) a string is printed. The instruction expects to have the address of the string, its length and the column width on the stack.
+
+\lstinputlisting[caption={``Hello World'' in \leongage{} Assembler}]{\assemblerfilepath HelloWorld.na}
+
+Note that the width of the column when writing ``Hello'' is set one character wider than the length of the string (line~\ref{line:helloworldcolwidth}). With this ``trick'' we get the blank between the two words. Of course, in this case, one could achieve the same result much easier by specifying already the string constant as needed to output the required string in one \lstinline$out$ statement. Further details about outputting can be found in section~\ref{sec:out}.
+
+\subsection{Variables, Reading Integers from Terminal and Basic Arithmetic}
+As already described in section~\ref{sec:stackframes} local variables of the currently running function are stored on the stack frame. In order to be able to do so, we have to reserve memory for local variables. This is done by the \lstinline$inc$ instruction. Additionally we have to keep in mind that for each stack frame the \leongage{} machine reserves 32 bytes for frame house keeping tasks. This is the reason why the following program accesses then the local variable at address 32. For further details about the semantics of the assembler instructions used here we refer to section~\ref{sec:instructions}.
+
+\lstinputlisting[caption={A program defining one local variable}]{\assemblerfilepath OneVariable.na}
+
+Maybe it appears superfluous to reload the value from address 32 before it can be printed to the output. The reason for this extra load instruction becomes clear if one studies the semantics of the \lstinline$sto$ instruction. Since it removes the value to be stored from the stack it has to be reloaded before it can be printed.
+
+Since doing calculations is only of limited fun if the corresponding values cannot be entered by the user we show here how to read values provided by the user via the \lstinline$stdin$. In order to do so, \leongage{} assembler provides an instruction \lstinline$in$. This instruction expects two addresses on the stack, one for holding the value inputted by the user and another one holding a success flag indicating whether reading the value succeeded or not. The following program reserves space for these two variables, reads an integer value from the user and finally outputs this value and the success flag.
+
+\lstinputlisting[caption={A program reading an input value}]{\assemblerfilepath Io.na}
+The value of the success flag can be verified by providing a valid integer value on a first run and entering an invalid integer (e.g., an alphanumeric character) on a second run.
+
+The assembler provides a complete set of arithmetic operations such that one can express arbitrary arithmetic expressions. To illustrate this we want to write an assembler program which calculates the expression \lstinline$((b + 11)/a) % 2$
+for some previously stored values \lstinline$b$ and \lstinline$a != 0$. The result will be stored in some extra variable \lstinline$c$ which will then finally be printed.
+
+\lstinputlisting[caption={Basic Arithmetic}]{\assemblerfilepath BasicArithmetic.na}
+
+Regarding the arithmetic instructions it can be seen that all of these expect their operand(s) to be pushed on the stack. During their calculation they remove these from the stack and push the result of the calculation back to the stack.
+
+\subsection{Branching}
+The \leongage{} assembler language provides three branch instructions, namely \lstinline$tjmp$, \lstinline$fjmp$ and \lstinline$jmp$, which jump to a destination address in case of the top value of the stack being non-zero, zero, or unconditionally, respecitvely. In order to prevent the programmer from counting the instruction sizes to get the correct jump destination fixed, the \leongage{} assembler provides so-called labels as jump destinations. In the following example we want to show how to check for a given number whether it is odd or even. 
+
+\lstinputlisting[caption={Odd/Even Checker}]{\assemblerfilepath SimpleSelection.na}
+\section{Formal Description}
+\subsection{Opcodes}
+The opcodes are exhaustively described in section~\ref{sec:instructions}. They can be taken directly from the first word of the first line of the formal operation description.
+
+\subsection{Token Classes}
+Token classes are described in form of a regular expression.
+\begin{description}
+	\item[letter] \lstinline$[a-zA-Z]$
+	\item[digit] \lstinline$[0-9]$
+	\item[label] \lstinline$\.letter(letter|digit|_)*$
+	\item[number] \texttt{digit digit*}
+	\item [string]: \verb$'"' {nodoublequote} '"'$
+\end{description}
+
+\subsection{Syntax}
+\begin{grammar}{.25\textwidth}{.75\textwidth}
+	\completerule{NoBeardAssembler}{[string]\{AssemblerInstruction\}}
+	\completerule{AssemblerInstruction}{label $|$ opcode [Operands]}
+	\completerule{Operands}{label $|$ number [number]}
+\end{grammar}
+
+\chapter{The Programming Language}
+\section{Lexical Structure}
+
+\leongage{} programs are written in text files of free format, i.e., there is no restriction concerning columns or lines where
+the source text has to be. In this section the scanner relevant terms for \leongage{} are denoted in the form of regular expressions
+with the extension that we allow "definitions" of non-terminals. This means in particular that if we define a term (e.g.
+{\em letter} as it can be seen in the next section) this term can be used in subsequent definitions and is rewritten as
+given in its original definition.
+
+\subsection{Token Classes}
+\begin{description}
+	\item [identifier]: \verb$letter{letter|digit|_}$
+	\item [number]: \verb$digit{digit}$
+	\item [string]: \verb$'"' {nodoublequote} '"'$
+\end{description}
+
+\subsection{Keywords}
+\begin{multicols}{3}
+\begin{enumerate}
+	\item \verb$bool$
+	\item \verb$char$
+	% \item \verb$const$
+	\item \verb$else$
+	\item \verb$false$
+	\item \verb$if$
+	\item \verb$int$
+	\item \verb$true$
+\end{enumerate}
+\end{multicols}
+
+\subsection{Single Tokens}
+\begin{multicols}{4}
+\begin{enumerate}
+	\item \verb$"&&"$
+	\item \verb$"||"$
+	\item \verb$"!"$
+	\item \verb$"+"$
+	\item \verb$"-"$
+	\item \verb$"*"$
+	\item \verb$"/"$
+	\item \verb$"%"$
+	\item \verb$"<"$
+	\item \verb$"<="$
+	\item \verb$"=="$
+	\item \verb$"!="$
+	\item \verb$">="$
+	\item \verb$">"$
+	\item \verb$"&"$
+	\item \verb$";"$
+	\item \verb$","$
+	\item \verb$"{"$
+	\item \verb$"}"$
+	\item \verb$"("$
+	\item \verb$")"$
+	\item \verb$"="$
+\end{enumerate}
+\end{multicols}
+
+\subsection{Comments}
+Comments are treated like whitespace characters (space, tab, cr/lf). A comment starts with \lstinline$#$ and lasts until the end of the current line.
+
+\subsection{Semantics}
+\begin{itemize}
+	\item \leongage{} is a case sensitive language. For example, the names "myVar", "myvar", and "MYVAR" denote three different identifiers.
+	\item Constants may only be between 0 and 65535 ($2^{16} - 1$).
+	\item No symbol may span over more than one line.
+\end{itemize}
+
+\section{Sample Program}
+\lstset{language=NoBeard}
+
+\begin{lstlisting}
+unit ComplexExpr;
+# ----------------- ComplexExpr.nb ----------------------
+# --- A syntactically correct NoBeard program
+# -------------------------------------------------------
+do
+    int l = 10;
+    int b =5;
+    int h= 170;
+        int unused = l;
+    int x=1001 + l * b - h / (b * h);
+
+    put ("Evaluating 1001 + l * b - h / (b * h)");
+    putln;
+    put ("Result is ");
+    put (x);          # result should be 1051
+done ComplexExpr;
+\end{lstlisting}
+
+\section{Syntax}
+The following context free grammar gives the syntax of \leongage{}. The well-known EBNF notation~\cite{wirth_what_1977} is used.
+
+	\begin{grammar}{.25\textwidth}{.75\textwidth}
+		\completerule{NoBeard}{``unit'' identifier ``;'' Block identifier ``;''}
+%	NoBeard & = & ``unit" ident ``;" Block ident ``;".\\
+
+		\completerule{Block}{``do'' \{Statement\} ``done''}
+%	Block & = &  ``do" StatSeq ``done".\\
+
+		\\
+%	StatSeq & = & Stat \{Stat\}. \\
+
+		\startrule{Statement}{VariableDeclaration}
+		\alternativerule{Put}
+		\alternativerule{If}
+		\alternativerule{Assignment}
+		\\
+		\completerule{VariableDeclaration}{Type identifier [``='' Expression]``;''}
+		\completerule{Type}{SimpleType[ArraySpecification]}
+		\completerule{SimpleType}{``int'' $|$ ``char'' $|$ ``bool''}
+		\completerule{ArraySpecification}{``['' number ``]''}
+		\\
+		\startrule{Put}{``put'' ``('' Expression [``,'' Expression] ``)''``;''}
+		\alternativeend{``putln'' ``;''}
+		\\
+		\completerule{If}{``if'' Expression Block [ ``else'' Block ]}
+		\\
+		\completerule{Assignment}{Reference ``='' Expression ``;''}
+		\completerule{Reference}{Identifier [ ``['' Expression``]'']}
+		\\
+		\completerule{Expression}{AddExpression [RelOp AddExpression]}
+		\completerule{AddExpression}{[AddOp] Term \{AddOp Term\}}
+		\completerule{Term}{Factor \{MulOp Factor\}}
+		\completerule{Factor}{Reference $|$ number $|$ string $|$ ``('' Expression ``)''}
+		\\
+		\completerule{RelOp}{``$<$'' $|$ ``$<$='' $|$ ``=='' $|$ ``$>$='' $|$ ``$>$''}
+		\completerule{AddOp}{``+'' $|$ ``-''}
+		\completerule{MulOp}{``*'' $|$ ``/'' $|$ ``\%''}	
+	\end{grammar}
+
+\section{Semantics}
+Here a non-formal description of the semantics of \leongage{} is given.
+
+\noindent \begin{tabular}{@{}p{.5\textwidth}p{.5\textwidth}}
+
+\begin{grammar}{.05\textwidth}{.35\textwidth}
+	\startrule{Put}{``put'' ``('' Expression1}
+	\finishrule {[``,'' Expression2] ``)''``;''}
+\end{grammar}
+&
+Writes the value of {\em Expression1} to the output medium. If {\em Expression2} is given it defines the column width as follows: Integers are outputted as is. If the number of digits is less then {\em Expression2} the output is padded on the left. Characters are outputted as is. If {\em Expression2} is greater than 1 the output is padded on the right. Strings are outputted in the length of {\em Expression2}, i.e., they are truncated if longer than {\em Expression2} or padded on the right if shorter.
+\end{tabular}
+
+\chapter{Some Translations by Example}
+\lstset{language=NoBeardAsm}
+\section{Reserving Space for Local Variables}
+
+\section{Assignments}
+
+\section{Boolean Expressions}
+We show the translation of a boolean expression {\tt a $\mid \mid$ b $\mid \mid$ c} where {\tt a}, {\tt b}, and {\tt c} are variables of type {\tt bool}. The sequence of several relational expressions or boolean variables connected via a boolean {\em or} is realized by a so-called or-chain. In particular, after evaluation of each single relational expression (or boolean variable) and this evaluation yields {\em true} all further evaluations are skipped and the program flow is continued at the end of the complete boolean expression. Figure~\ref{fig:orchain} shows this principle. In order to keep the program flow simple, the load value parts in front of each evaluation are skipped. The more detailed \leongage{} assembler code for this sequence is given in listing~\ref{cod:orchain}. Note that, for the sake of simplicity, the addresses given as operands to the \lstinline$jmp$ and \lstinline{tjmp} instructions are the line numbers here. Of course, the ``real" code generates the memory addresses of the targeted assembler instruction.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=.5]{images/OrChain.png}
+\end{center}
+\caption{Program flow of an or chain}
+\label{fig:orchain}
+\end{figure}
+
+%\lstset{language=[x86masm]Assembler, morekeywords={LV,TJMP,LIT}}
+
+\begin{lstlisting}[float,caption={Assembler code of or-chain}, captionpos=b,label=cod:orchain]
+...
+lv 0, 32		# load value a
+tjmp 8		# if true, jump to the end
+lv 0, 36		# load value b
+tjmp 8		# if true, jump to the end
+lv 0, 40		# load value c
+jmp 9			# result is determined by c only
+lit 1
+...
+\end{lstlisting}
+When generating this kind of code, we have to deal with the situation that the final addresses we have to jump to are not known in prior. Therefore, we have to construct a so-called or-chain, which work as follows. While parsing a conditional expression, we maintain an int variable holding the 
+
+The translation of {\em and-}expressions works analogously.
+
+%\section{Jumps in If- and While-Statements}
+
+\chapter{Error Handling}
+ErrorHandler.getInstance().raise(new ...));
+
+\chapter{Attributed Grammar}
+%\begin{atg}[4.5cm]
+%\leongage &=& & \semantics{\begin{sem} \newline EmitOp(INC); \newline Emit2(0); \newline int inc\_addr = 1; \newline \end{sem}}\\
+%&&Stat ";" \{Stat ";"\}. \\
+%
+%Stat & = & ident ":=" \atgsy{Expr}{\outattr op}  \alternative \\
+%&& "PUT" \atgsy{Expr}{\outattr op}. \\
+%
+%\atgsy{Term}{\outattr op} &=& \atgsy{Fact}{\outattr op}  \\
+%&& \{("*" &\semantics{\begin{sem} opcode = mul \end{sem}}\\
+%&& \alternative "/" & \semantics{\begin{sem} opcode = div \end{sem}}\\
+%&&) & \semantics{\begin{sem}EmitOp(\inattr opcode)\end{sem}}\\
+%&&\atgsy{Fact}{\outattr op} & \semantics{\begin{sem}LoadVal(\inattr op)\end{sem}}
+%\end{atg}
+
+%\begin{atg}
+%\completerule{NoBeard}{``unit'' identifier Block\in{identifier} ``;''}
+%\leftside{Reference \out{op}}
+%\rightside{identifier \out{name}}
+%\sem{
+%obj = findObject(name);
+%op = obj.createOperand();
+%}
+%\where{op.getKind() == VARIABLE}
+%\end{atg}
+
+\bibliography{my_bibliography}{}
+\bibliographystyle{alphaurl} % save alternatives are abbrvurl	alphaurl	plainurl	unsrturl
+
+\end{document}  
