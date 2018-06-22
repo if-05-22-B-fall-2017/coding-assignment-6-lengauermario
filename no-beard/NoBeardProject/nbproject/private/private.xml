@@ -3,6 +3,28 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/CodeGenerator.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/StatementParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/compiler/NoBeardCompiler.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/nbproject/build-impl.xml</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/PutParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/scanner/KeywordTable.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/DataMemory.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/Parser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/ProgramMemory.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/BlockParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/InstructionSet.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/ParserFactory.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/asm/NoBeardAssembler.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/ControlUnit.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/CallStack.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/ExpressionParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/scanner/Scanner.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/machine/NoBeardMachine.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/getParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/IfParser.java</file>
+            <file>file:/C:/Users/Alen/Desktop/nobeard/NoBeardProject/src/parser/ReferenceParser.java</file>
+        </group>
     </open-files>
 </project-private>

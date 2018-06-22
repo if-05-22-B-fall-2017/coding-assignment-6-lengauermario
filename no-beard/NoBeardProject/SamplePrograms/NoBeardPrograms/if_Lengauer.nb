@@ -1,0 +1,10 @@
+unit if_Lengauer;
+# using the ifStatement
+do
+    int x = 12;
+    int y = 3;
+    if (x != 0 )
+        push(x/y);
+    else
+        put ("Divided By 0 Error");  
+done if_Lengauer;

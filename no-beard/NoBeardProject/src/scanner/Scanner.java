@@ -39,7 +39,7 @@ public class Scanner {
         NOSY, EOFSY, ILLEGALSY,
         /// Keywords
         UNIT, DO, DONE, PUT, PUTLN, IF, ELSE, INT, BOOL, CHAR,
-        TRUE, FALSE,
+        TRUE, FALSE, 
         /// Classes
         IDENTIFIER, NUMBER, STRING,
         /// Arithmethic
@@ -243,8 +243,11 @@ public class Scanner {
                 break;
 
             case '(':
-                currentToken.setSymbol(Symbol.LPAR);
                 srcReader.nextChar();
+                if(srcReader.getCurrentChar() == '*')
+                    skipBracketComment();
+                else currentToken.setSymbol(Symbol.LPAR);
+                
                 break;
 
             case ')':
@@ -261,6 +264,7 @@ public class Scanner {
                 currentToken.setSymbol(Symbol.RBRACKET);
                 srcReader.nextChar();
                 break;
+            
 
             case '"':
             case '\'':
@@ -296,5 +300,30 @@ public class Scanner {
         while (srcReader.getCurrentChar() != -1 && srcReader.getCurrentChar() != '\n') {
             srcReader.nextChar();
         }
+    }
+    private void skipBracketComment(){
+        int counter = 1;
+        srcReader.nextChar();
+        while (srcReader.getCurrentChar() != -1 && counter != 0) {
+            switch (srcReader.getCurrentChar()) {
+                case '(':
+                    srcReader.nextChar();
+                    if(srcReader.getCurrentChar() == '*'){
+                        counter++;
+                    }
+                    break;
+                case '*':
+                    srcReader.nextChar();
+                    if(srcReader.getCurrentChar() == ')'){
+                        counter--;
+                    }
+                    break;                    
+            }
+            srcReader.nextChar();
+        }
+        if(counter != 0){
+            errorHandler.throwUnfinishedCommentError();
+            
+        }        
     }
 }

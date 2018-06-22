@@ -136,4 +136,7 @@ public class ErrorHandler {
     public void throwOperandRangeError() {
         raise(new error.Error(Error.ErrorType.OPERAND_RANGE_ERROR));
     }
+    public void throwUnfinishedCommentError() {
+        raise(new error.Error(Error.ErrorType.UNFINISHED_COMMENT_ERROR));
+    }
 }

@@ -207,4 +207,50 @@ public class ScannerTest {
         scanner.nextToken();
         assertTrue("EOFSY expected", scanner.getCurrentToken().getSymbol() == Symbol.EOFSY);
     }
+      
+    @Test
+    public void testLineCommand() {
+        System.out.println("testLineCommand");
+        
+        setupReaderAndErrorHandler("#adfasdfjsflösdaf");
+        scanner.nextToken();
+        
+        assertTrue("EOFSY expected", scanner.getCurrentToken().getSymbol() == Symbol.EOFSY);
+    }
+    @Test
+    public void testCommand() {
+        System.out.println("testCommand");
+        
+        setupReaderAndErrorHandler("(*a*)");
+        scanner.nextToken();
+        
+        assertTrue("EOFSY expected", scanner.getCurrentToken().getSymbol() == Symbol.EOFSY);
+    }
+    @Test
+    public void testNestedCommand() {
+        System.out.println("testNestedCommand");
+        
+        setupReaderAndErrorHandler("(*a (* a *) a *) if");
+        scanner.nextToken();
+        
+        assertTrue("EOFSY expected", scanner.getCurrentToken().getSymbol() == Symbol.IF);
+    }
+    @Test
+    public void testNestedUnfinishedComment() {
+        System.out.println("testNestedUnfinishedCommand");
+        
+        setupReaderAndErrorHandler("(*adfas (* dfjsflösdaf *) test if");
+        scanner.nextToken();
+        
+        assertTrue("Unfinished_Comment_Error expected", errorHandler.getLastError().getNumber() == 200);
+    }
+    @Test
+    public void testIf() {
+        System.out.println("testIf");
+        
+        setupReaderAndErrorHandler("if 2 < 4 do put(2 < 4); done");
+        scanner.nextToken();
+        
+        assertTrue("if", scanner.getCurrentToken().getSymbol() == Symbol.IF);
+    }
 }

@@ -179,3 +179,4 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/java,linux,macos,maven,windows,netbeans,intellij
 
+/no-beard/NoBeardProject/Nbc/nbproject/private/
